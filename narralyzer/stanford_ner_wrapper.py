@@ -1,5 +1,17 @@
 #!/usr/bin/env python2.7
 # -*- coding: utf-8 -*-
+"""
+    narralyzer.stanford_ner_wrapper
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    Implements tiny wrapper for Stanford CoreNLP NER.
+
+    Hint's on setting up a high-preformance NER-farm.
+    http://stanfordnlp.github.io/CoreNLP/corenlp-server.html#dedicated-server
+
+    :copyright: (c) 2016 Koninklijke Bibliotheek, by Willem Jan Faber.
+    :license: GPLv3, see licence.txt for more details.
+"""
+
 
 import logging
 import lxml.html
@@ -145,7 +157,7 @@ def stanford_ner_wrapper(text, port, host='localhost'):
     ners = []
     for item in ner["raw_ners"]:
         if item.get("tag")[0] == 'i':
-            if counter and len(ners) >= counter -1:
+            if counter and len(ners) >= counter - 1:
                 ners[counter - 1]["string"] += ' ' + item.get("string")
         else:
             tag = item.get("tag")
@@ -167,7 +179,7 @@ if __name__ == '__main__':
         from gutenberg.cleanup import strip_headers
         from pycallgraph import PyCallGraph
         from pycallgraph.output import GraphvizOutput
-       
+
         text = smart_text(strip_headers(load_etext(17685)).strip())
         with PyCallGraph(output=GraphvizOutput()):
             stanford_ner_wrapper(text, 9992)
