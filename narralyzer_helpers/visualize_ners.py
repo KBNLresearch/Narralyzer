@@ -86,73 +86,10 @@ def color_code(value, max_value):
 
 if __name__ == "__main__":
     name = 'vondel'
+
     dot = Digraph(comment=name)
-   
-    from narralyzer_helpers import stanford_ner_wrapper
-    fh = open('test_data/de_complete_werken_van_joost_van_vondel.txt','rb')
-    data = smart_text(fh.read())
-    fh.close()
-
-    ner_array = []
-    result = stanford_ner_wrapper(data, 9992)
-    from pprint import pprint
-
-    for ner in result.get('ners'):
-        if ('per' or 'person') in ner.get('tag'):
-            ner_array.append(ner.get('string'))
-    
-    pprint(ner_array)
-    analyze(ner_array, dot, name)
-
-    name = 'Pride and Prejudice'
-    dot = Digraph(comment=name)
-
-    from narralyzer_helpers import stanford_ner_wrapper
-    fh = open('test_data/pride_and_prejudice.txt','rb')
-    data = smart_text(fh.read())
-    fh.close()
-
-    ner_array = []
-    result = stanford_ner_wrapper(data, 9992)
-    from pprint import pprint
-
-    for ner in result.get('ners'):
-        if ('per' or 'person') in ner.get('tag'):
-            ner_array.append(ner.get('string'))
-    
-    pprint(ner_array)
-    analyze(ner_array, dot, name)
-
-    name = 'Hear Me, Pilate!'
-    dot = Digraph(comment=name)
-
-    from narralyzer_helpers import stanford_ner_wrapper
-    fh = open('test_data/hear_me_pilate.txt','rb')
-    data = smart_text(fh.read())
-    fh.close()
-
-    ner_array = []
-    result = stanford_ner_wrapper(data, 9992)
-    from pprint import pprint
-
-    for ner in result.get('ners'):
-        if ('per' or 'person') in ner.get('tag'):
-            ner_array.append(ner.get('string'))
-    
-    pprint(ner_array)
-    analyze(ner_array, dot, name)
-
-    name = "the_adventures_of_sherlock_holmeS"
-    dot = Digraph(comment=name)
-
-    from narralyzer_helpers import stanford_ner_wrapper
-    fh = open("test_data/the_adventures_of_sherlock_holmes.txt", 'rb')
-    data = smart_text(fh.read())
-    fh.close()
-
     ner_array = []
     result = stanford_ner_wrapper(data, 9991)
-    from pprint import pprint
 
     for ner in result.get('ners'):
         if ('per' or 'person') in ner.get('tag'):

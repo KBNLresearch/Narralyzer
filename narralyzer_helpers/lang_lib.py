@@ -71,8 +71,7 @@ class Language:
             sys.exit(-1)
 
         if len(text) < 9:
-            msg = ("Input text is way to small " +
-                   "to say someting credible about it.")
+            msg = "Input text is way to small to say someting credible about it."
             print(msg)
             sys.exit(-1)
 
@@ -80,27 +79,24 @@ class Language:
         if use_langdetect and not lang:
             try:
                 detected_lang = detect(text)
-
                 if detected_lang not in STANFORD_NER_SERVERS:
                     msg = ("Detected language (%s) is not (yet) ",
                            "supported.\n" % detected_lang)
                     print(msg)
 
-                msg = ("Using detected language '%s'" +
-                       "to parse input text." % detected_lang)
-
+                msg = ("Using detected language '%s' to parse input text." % detected_lang)
                 print(msg)
                 lang = detected_lang
             except:
                 msg = "Could not automaticly detect language."
+                print(msg)
         elif use_langdetect and lang:
-            msg = "Skipping language detection, \
-                   user specified %s as language" % lang
+            msg = "Skipping language detection, user specified %s as language" % lang
             print(msg)
 
         if not lang or lang not in STANFORD_NER_SERVERS:
             msg = "Did not find suitable language to parse text in."
-            print(msg)
+            print(msg, lang)
             sys.exit(-1)
 
         self.stanford_port = STANFORD_NER_SERVERS.get(lang)
@@ -303,8 +299,8 @@ if __name__ == '__main__':
     # import doctest
     # doctest.testmod()
 
-    _test_NL()
-    '''
+    # _test_NL()
+
     if len(sys.argv) >= 2 and 'profile' in sys.argv[1]:
         from pycallgraph import PyCallGraph
         from pycallgraph.output import GraphvizOutput
@@ -323,29 +319,27 @@ if __name__ == '__main__':
         import time
         import json
 
+        from django.utils.encoding import smart_text
         from gutenberg.acquire import load_etext
         from gutenberg.cleanup import strip_headers
 
         gutenberg_test_id = 17685
-
+        # Fetch a test book from gutenberg.
+        # http://www.gutenberg.org/ebooks/
         text = smart_text(strip_headers(load_etext(gutenberg_test_id)).strip())
-
 
         print("Timing non-threaded lang_lib")
         s = time.time()
-        nl = NL()
-        nl.text = text
-        nl.parse()
-        nl.stats()
+        lang = Language(text)
+        lang.use_threads = False
+        lang.parse()
         print("Took %s seconds" % (str(round(s - time.time()) * -1)))
 
         print("Timing threaded lang_lib")
         s = time.time()
-        nl = NL()
-        nl.use_threads = True
-        nl.text = text
-        nl.parse()
-        nl.stats()
+        lang = Language(text)
+        lang.use_threads = True
+        lang.parse()
         print("Took %s seconds" % (str(round(s - time.time()) * -1)))
 
         print("Timing ner-vanilla")
@@ -356,5 +350,4 @@ if __name__ == '__main__':
         outfile = "../out/%s.pos_ner_sentiment.json" % gutenberg_test_id
         print("Writing output in json-format to: %s" % outfile)
         with open(outfile, "w") as fh:
-            fh.write(json.dumps(nl.result))
-    '''
+            fh.write(json.dumps(lang.result))
