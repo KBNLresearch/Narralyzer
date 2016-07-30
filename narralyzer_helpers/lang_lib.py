@@ -1,126 +1,187 @@
 #!/usr/bin/env python2.7
 # -*- coding: utf-8 -*-
 
-import importlib
-import segtok.segmenter
-import string
 import sys
+import importlib
+import string
 
-from django.utils.encoding import smart_text
 from langdetect import detect
 from numpy import mean
 from Queue import Queue
+from segtok.segmenter import split_multi
 from stanford_ner_wrapper import stanford_ner_wrapper
 from threading import Thread
 
-STANFORD_NER_SERVERS = {
-    'de': 9990,
-    'en': 9991,
-    'nl': 9992,
-    'sp': 9993,
-}
+# TODO Move this to a seperate config module.
+STANFORD_NER_SERVERS = {'de': 9990,
+                        'en': 9991,
+                        'nl': 9992,
+                        'sp': 9993}
+
 
 class Language:
+    '''
+    The ``Narralyzer.lang_lib`` module,
+    part of the Narralyzer project,
+
+    Licence info: licence.txt
+
+    About
+    -----
+    The module combines the power of several awesome Python/Java projects,
+    see overview of most relevant projects below.
+
+    Using ``lang_lib.Language``
+    ------------------
+    >>> lang = Language(("Willem Jan Faber just invoked lang_lib.Language, while wishing he was in West Virginia."))
+    Using detected language 'en' to parse input text.
+    >>> lang.parse()
+
+    URL + Project / Function within Narralyzer:
+
+    http://stanfordnlp.github.io/CoreNLP/
+    Stanford CoreNLP / Find named entities.
+                       Provide (NER) language models.
+
+    http://www.cnts.ua.ac.be/conll2002/ner/data/
+    Conference on Computational Natural Language Learning (CoNLL-2002) /
+                        Provide Dutch language model.
+
+    http://www.clips.ua.ac.be/pattern
+    CLiPS Pattern / Sentiment analysis.
+                    Part-of-speech tagging.
+
+    http://fnl.es/segtok-a-segmentation-and-tokenization-library.html
+    Segtok / Sentencte segmentation.
+
+    Source code: https://github.com/KBNLresearch/Narralyzer
+    '''
     sentences = {}
-    stanford_ner = {}
     stanford_port = 9990
 
-    text = u'Later gaf Christophorus Columbus in \
-    een brief aan Ferdinand en Isabella. Toen \
-    Columbus uit de haven van Tunis voer.'
-
-    result_stats = {"ner": {},
-                    "sentences": {},
-                    "input_string": {}}
-
-    result = {"input_string": text,
-              "sentences": sentences,
-              "stats": result_stats}
-
     use_threads = True
-    use_langdetect = True
+    nr_of_threads = 10
 
+    use_stats = True
 
-    def __init__(self, lang=False, text=False):
-        if text:
-            self.text = text
+    def __init__(self, text=False, lang=False, use_langdetect=True):
+        if not text:
+            msg = "Did not get any text to look at."
+            print(msg)
+            sys.exit(-1)
 
-        if use_langdetect:
-            detected_lang = detect(self.text)
+        if len(text) < 9:
+            msg = ("Input text is way to small " +
+                   "to say someting credible about it.")
+            print(msg)
+            sys.exit(-1)
 
-            if not str(detected_lang) == str(lang):
-                print("Requested language: %s is not the same as detected language: %s." % (lang, detected_lang))
-                print("Ignoring language detection result.")
+        detected_lang = False
+        if use_langdetect and not lang:
+            try:
+                detected_lang = detect(text)
+
+                if detected_lang not in STANFORD_NER_SERVERS:
+                    msg = ("Detected language (%s) is not (yet) ",
+                           "supported.\n" % detected_lang)
+                    print(msg)
+
+                msg = ("Using detected language '%s'" +
+                       "to parse input text." % detected_lang)
+
+                print(msg)
                 lang = detected_lang
+            except:
+                msg = "Could not automaticly detect language."
+        elif use_langdetect and lang:
+            msg = "Skipping language detection, \
+                   user specified %s as language" % lang
+            print(msg)
 
-            if not lang in STANFORD_NER_SERVERS:
-                print("Requested language: %s not available.")
-                sys.exit(-1)
-            else:
-                self.stanford_port = STANFORD_NER_SERVERS.get(lang, 'en')
+        if not lang or lang not in STANFORD_NER_SERVERS:
+            msg = "Did not find suitable language to parse text in."
+            print(msg)
+            sys.exit(-1)
 
+        self.stanford_port = STANFORD_NER_SERVERS.get(lang)
+
+        pattern = False
         try:
             pattern = importlib.import_module('pattern.' + lang)
         except:
-            print("Nice try, but the requested language is not supported, sorry!")
+            msg = ("Requested language is not (yet) supported" +
+                   ", failed to import pattern.%s" % lang)
+            print(msg)
+            sys.exit(-1)
 
         self._pattern_parse = pattern.parse
         self._pattern_sentiment = pattern.sentiment
         self._pattern_tag = pattern.tag
 
+        self.result = {"text": text,
+                       "lang": lang,
+                       "sentences": {},
+                       "stats": {}}
+
     def parse(self):
-        for sentence_count, sentence in enumerate(
-                segtok.segmenter.split_multi(self.text.replace('\n', ' '))):
-            self.sentences[sentence_count] = ({"string": sentence,
+        for count, sentence in enumerate(split_multi(self.result["text"])):
+            self.result["sentences"][count] = {"string": sentence,
                                                "pos": [],
                                                "sentiment": [],
                                                "stanford": [],
-                                               "nr": sentence_count})
+                                               "count": count}
 
         if self.use_threads:
             self._threaded_parser()
         else:
             self._parser()
 
+        if self.use_stats:
+            self.stats_all()
+
     def _parser(self):
-        for sentence_count, sentence in enumerate(self.sentences.values()):
+        for count, sentence in enumerate(self.result["sentences"].values()):
             sentence = sentence.get("string")
-            result = self._parse_singleton(sentence, sentence_count)
-            if not result:
-                continue
+            result = self._parse_singleton(sentence, count)
             for item in result:
-                self.sentences[sentence_count][item] = result[item]
+                self.result["sentences"][count][item] = result[item]
 
     def _threaded_parser(self):
         work_queue = Queue()
         result_queue = Queue()
 
-        for sentence_count, sentence in enumerate(self.sentences.values()):
+        for count, sentence in enumerate(self.result["sentences"].values()):
             work_queue.put({"string": sentence.get("string"),
-                            "nr" : sentence.get("nr")})
-        if len(self.sentences) < 10:
-            num_workers = len(self.sentences)
-        else:
-            num_workers = 10
+                            "count": sentence.get("count")})
 
-        workers = []
-        for worker in range(num_workers):
-            p = Thread(target=self._parse_queue,
-                       args=(work_queue, result_queue))
-            p.daemon = True
-            p.start()
-            workers.append(p)
+        nr_of_threads = self.nr_of_threads
+        if len(self.result["sentences"]) <= self.nr_of_threads:
+            nr_of_threads = len(self.result["sentences"])
 
-        for worker in workers:
-            worker.join()
+        threads = []
+        for worker in range(nr_of_threads):
+            process = Thread(target=self._parse_queue,
+                             args=(work_queue, result_queue))
+            process.daemon = True
+            process.start()
+            threads.append(process)
 
-        result = result_queue.get_nowait()
+        for thread in threads:
+            thread.join()
+
+        try:
+            result = result_queue.get_nowait()
+        except:
+            msg = "Thread did not recieve input from queue, bye!"
+            print(msg)
+            result = False
+
         while result:
-            nr = result.get('nr')
+            count = result.get('count')
             for item in result:
-                if item == 'nr':
+                if item == 'count':
                     continue
-                self.sentences[nr][item] = result.get(item)
+                self.result["sentences"][count][item] = result.get(item)
             try:
                 result = result_queue.get_nowait()
             except:
@@ -132,82 +193,118 @@ class Language:
             try:
                 job = work_queue.get_nowait()
                 result = self._parse_singleton(job.get('string'),
-                                               job.get('nr'))
+                                               job.get('count'))
                 done_queue.put(result)
             except:
                 done = True
 
-    def _parse_singleton(self, sentence, sentence_count):
+    def _parse_singleton(self, sentence, count):
+        result = {"count": count,
+                  "pos": False,
+                  "sentiment": False,
+                  "stanford": False,
+                  "stats": False}
+
         if len(sentence) < 2:
-            # Skip sentence that are too short.
-            return False
+            return result
+
+        result["sentiment"] = self._pattern_sentiment(sentence)
+        result["stanford"] = stanford_ner_wrapper(sentence, self.stanford_port)
 
         pos = []
-        sentiment = self._pattern_sentiment(sentence)
-        stanford = stanford_ner_wrapper(sentence, self.stanford_port)
-
         for word, pos_tag in self._pattern_tag(sentence):
             pos.append({"string": word, "tag": pos_tag})
 
-        retval = {"nr": sentence_count,
-                  "pos": pos,
-                  "sentiment": sentiment,
-                  "stanford": stanford}
+        result["pos"] = pos
 
-        return retval
+        return result
 
-    def stats(self):
-        nr_of_sentences = len(self.sentences)
-        self.result_stats["sentences"]["count"] = nr_of_sentences
+    def stats_pos(self):
+        pass
 
-        avg = []
+    def stats_ner(self):
+        pass
 
-        ascii_letters = digits = lowercase = \
-            printable = uppercase = unprintable = 0
+    @staticmethod
+    def stats_sentence(sentence):
+        ascii_letters = count = digits = lowercase = \
+         printable = uppercase = unprintable = 0
 
-        for sentence in self.sentences.values():
-            avg.append(len(sentence.get('string')))
-            for char in sentence:
-                if char in string.printable:
-                    printable += 1
-                    if char in string.digits:
-                        digits += 1
-                    elif char in string.ascii_letters:
-                        ascii_letters += 1
-                        if char in string.ascii_lowercase:
-                            lowercase += 1
-                        elif char in string.ascii_uppercase:
-                            uppercase += 1
-                else:
-                   unprintable += 1
+        for count, char in enumerate(sentence):
+            if char in string.printable:
+                printable += 1
+                if char in string.digits:
+                    digits += 1
+                elif char in string.ascii_letters:
+                    ascii_letters += 1
+                    if char in string.ascii_lowercase:
+                        lowercase += 1
+                    elif char in string.ascii_uppercase:
+                        uppercase += 1
+            else:
+                unprintable += 1
 
+        stats = {"ascii_lowercase": ascii_letters,
+                 "count": count + 1,  # a='123'; for i in enumerate(a): print(i)
+                 "digits": digits,
+                 "lowercase": lowercase,
+                 "printable": printable,
+                 "uppercase": uppercase,
+                 "unprintable": unprintable}
+
+        return stats
+
+    def stats_all(self):
+        max_len = min_len = 0  # Min and max sentence length.
+        avg = []  # Caluclate average sentence length.
+        for sentence in self.result["sentences"].values():
+            # Caluclate the stats per sentence.
+            sentence_stats = self.stats_sentence(sentence.get("string"))
+            avg.append(sentence_stats.get("count"))
+
+            if sentence_stats.get("count") > max_len:
+                max_len = sentence_stats.get("count")
+
+            if sentence_stats.get("count") < min_len:
+                min_len = sentence_stats.get("count")
+
+            if min_len == 0:
+                min_len = sentence_stats.get("count")
+
+            self.result["sentences"][sentence.get("count")]["stats"] = sentence_stats
+
+        # Caluclate the total stats.
         avg_sentence_length = int(round(mean(avg)))
-        self.result_stats["sentences"]["total"] = {}
-        self.result_stats["sentences"]["total"] = {"ascii_letters": ascii_letters,
-                                                   "digits": digits,
-                                                   "lowercase": lowercase,
-                                                   "printable": printable,
-                                                   "uppercase": uppercase,
-                                                   "unprintable": unprintable}
-        self.result_stats["sentences"]["avg_length"] = avg_sentence_length
+
+        stats = {}
+        stats["avg_length"] = avg_sentence_length
+        stats["max"] = max_len
+        stats["min"] = min_len
+
+        self.result["stats"] = stats
 
 
 def _test_NL():
     '''
-    >>> lang = Language()
+    >>> lang = Language("Later gaf Christophorus Columbus in een brief aan Ferdinand en Isabella de opdracht de buit te verstoppen en de haven af te branden. Toen Columbus uit de haven van Tunis voer zag hij de soldaten van Isabella naderen.")
+    Using detected language 'nl' to parse input text.
+    >>> lang.use_threads = False
     >>> lang.parse()
-    >>> lang.stats()
-    >>> from pprint import pprint; pprint (nl.result)
-
+    >>> from pprint import pprint
+    >>> pprint (lang.result)
     '''
+    lang = Language("Later gaf Christophorus Columbus in een brief aan Ferdinand en Isabella de opdracht de buit te verstoppen en de haven af te branden. Toen Columbus uit de haven van Tunis voer zag hij de soldaten van Isabella naderen.", "nl")
+    lang.use_threads = False
+    lang.parse()
+    from pprint import pprint
+    pprint(lang.result)
 
 if __name__ == '__main__':
-    import doctest
-    doctest.testmod()
+    # import doctest
+    # doctest.testmod()
 
-
+    _test_NL()
     '''
-
     if len(sys.argv) >= 2 and 'profile' in sys.argv[1]:
         from pycallgraph import PyCallGraph
         from pycallgraph.output import GraphvizOutput
