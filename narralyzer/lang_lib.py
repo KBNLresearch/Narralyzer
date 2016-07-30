@@ -1,5 +1,13 @@
 #!/usr/bin/env python2.7
 # -*- coding: utf-8 -*-
+"""
+    narralyzer.lang_lib
+    ~~~~~~~~~~~~~~~~~~~
+    Implements sentence level analyzer for natural language.
+
+    :copyright: (c) 2016 Koninklijke Bibliotheek, by Willem Jan Faber.
+    :license: GPLv3, see licence.txt for more details.
+"""
 
 import sys
 import importlib
@@ -13,18 +21,23 @@ from stanford_ner_wrapper import stanford_ner_wrapper
 from threading import Thread
 
 # TODO Move this to a seperate config module.
-STANFORD_NER_SERVERS = {'de': 9990,
-                        'en': 9991,
-                        'nl': 9992,
-                        'sp': 9993}
+STANFORD_NER_SERVERS = {"de": 9990,
+                        "en": 9991,
+                        "nl": 9992,
+                        "sp": 9993}
 
 
 class Language:
     '''
-    The ``Narralyzer.lang_lib`` module,
-    part of the Narralyzer project,
+    Intro
+    -----
+    The ``lang_lib.Language`` class is part of the Narralyzer project.
+    This class takes care of chopping up strings/documents into sentences,
+    and applies the following:
 
-    Licence info: licence.txt
+        - Part-of-speech tagging (Using CLiPS-pattern)
+        - Sentencte analysis (Using CLiPS-pattern)
+        - Named entitie extraction (Using Stanford CoreNLP)
 
     About
     -----
@@ -32,7 +45,7 @@ class Language:
     see overview of most relevant projects below.
 
     Using ``lang_lib.Language``
-    ------------------
+    ---------------------------
     >>> lang = Language(("Willem Jan Faber just invoked lang_lib.Language, while wishing he was in West Virginia."))
     Using detected language 'en' to parse input text.
     >>> lang.parse()
@@ -118,11 +131,10 @@ class Language:
             try:
                 detected_lang = detect(text)
                 if detected_lang not in STANFORD_NER_SERVERS:
-                    msg = ("Detected language (%s) is not (yet) ",
-                           "supported.\n" % detected_lang)
+                    msg = "Detected language (%s) is not (yet) supported.\n" % detected_lang
                     print(msg)
 
-                msg = ("Using detected language '%s' to parse input text." % detected_lang)
+                msg = "Using detected language '%s' to parse input text." % detected_lang
                 print(msg)
                 lang = detected_lang
             except:
@@ -143,8 +155,7 @@ class Language:
         try:
             pattern = importlib.import_module('pattern.' + lang)
         except:
-            msg = ("Requested language is not (yet) supported" +
-                   ", failed to import pattern.%s" % lang)
+            msg = "Requested language is not (yet) supported, failed to import pattern.%s" % lang
             print(msg)
             sys.exit(-1)
 
@@ -429,53 +440,47 @@ if __name__ == '__main__':
 
     # _test_NL()
 
-    if len(sys.argv) >= 2 and 'profile' in sys.argv[1]:
-        from pycallgraph import PyCallGraph
-        from pycallgraph.output import GraphvizOutput
-
-        from gutenberg.acquire import load_etext
-        from gutenberg.cleanup import strip_headers
-
-        text = smart_text(strip_headers(load_etext(17685)).strip())
-        with PyCallGraph(output=GraphvizOutput()):
-            nl = NL()
-            nl.text = text
-            nl.parse()
-            nl.stats()
-
-    if len(sys.argv) >= 2 and 'time' in sys.argv[1]:
+    if len(sys.argv) >= 2 and "time" or "profile" in " ".join(sys.argv):
         import time
         import json
 
         from django.utils.encoding import smart_text
         from gutenberg.acquire import load_etext
         from gutenberg.cleanup import strip_headers
+        from pycallgraph import PyCallGraph
+        from pycallgraph.output import GraphvizOutput
 
         gutenberg_test_id = 17685
         # Fetch a test book from gutenberg.
         # http://www.gutenberg.org/ebooks/
         text = smart_text(strip_headers(load_etext(gutenberg_test_id)).strip())
 
-        print("Timing non-threaded lang_lib")
-        s = time.time()
-        lang = Language(text)
-        lang.use_threads = False
-        lang.parse()
-        print("Took %s seconds" % (str(round(s - time.time()) * -1)))
+        if "time" in " ".join(sys.argv):
+            print("Timing non-threaded lang_lib")
+            s = time.time()
+            lang = Language(text)
+            lang.use_threads = False
+            lang.parse()
+            print("Took %s seconds" % (str(round(s - time.time()) * -1)))
 
-        print("Timing threaded lang_lib")
-        s = time.time()
-        lang = Language(text)
-        lang.use_threads = True
-        lang.parse()
-        print("Took %s seconds" % (str(round(s - time.time()) * -1)))
+            print("Timing threaded lang_lib")
+            s = time.time()
+            lang = Language(text)
+            lang.use_threads = True
+            lang.parse()
+            print("Took %s seconds" % (str(round(s - time.time()) * -1)))
 
-        print("Timing ner-vanilla")
-        s = time.time()
-        stanford_ner_wrapper(text, 9992)
-        print("Took %s seconds" % (str(round(s - time.time()) * -1)))
+            print("Timing ner-vanilla")
+            s = time.time()
+            stanford_ner_wrapper(text, 9992)
+            print("Took %s seconds" % (str(round(s - time.time()) * -1)))
 
-        outfile = "../out/%s.pos_ner_sentiment.json" % gutenberg_test_id
-        print("Writing output in json-format to: %s" % outfile)
-        with open(outfile, "w") as fh:
-            fh.write(json.dumps(lang.result))
+            outfile = "../out/%s.pos_ner_sentiment.json" % gutenberg_test_id
+            print("Writing output in json-format to: %s" % outfile)
+            with open(outfile, "w") as fh:
+                fh.write(json.dumps(lang.result))
+
+        with PyCallGraph(output=GraphvizOutput()):
+            lang = Language(text)
+            lang.use_threads = True
+            lang.parse()
