@@ -94,6 +94,7 @@ if [ ! -d 'models' ]; then
 fi
 
 pip install -U pip setuptools
+pip install --upgrade pip
 
 is_python2_7_avail
 
@@ -105,7 +106,6 @@ if [ ! -d 'env' ]; then
     source env/bin/activate
 
     echo "Installing the following packages via pip:"
-    cat requirements.txt
     pip install --upgrade pip
     if [ -f ~/requirements.txt ]; then
         pip install -r ~/requirements.txt
