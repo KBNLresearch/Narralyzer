@@ -1,7 +1,12 @@
 #!/usr/bin/env python2.7
 # -*- coding: utf-8 -*-
 """
+    narralyzer.lang_lib
+    ~~~~~~~~~~~~~~~~~~~
     Implements sentence level analyzer for natural language.
+
+    :copyright: (c) 2016 Koninklijke Bibliotheek, by Willem Jan Faber.
+    :license: GPLv3, see licence.txt for more details.
 """
 
 import sys
@@ -473,7 +478,7 @@ if __name__ == '__main__':
             with open(outfile, "w") as fh:
                 fh.write(json.dumps(lang.result))
 
-        with PyCallGraph(output=GraphvizOutput()):
-            lang = Language(text)
-            lang.use_threads = True
-            lang.parse()
+            with PyCallGraph(output=GraphvizOutput()):
+                lang = Language(text)
+                lang.use_threads = True
+                lang.parse()
