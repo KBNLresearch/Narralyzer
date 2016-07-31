@@ -36,7 +36,7 @@ function get_if_not_there () {
 function fetch_stanford_core {
     get_if_not_there $STANFORD_CORE
     if [ -f `basename $STANFORD_CORE` ]; then
-        unzip -n `basename "$STANFORD_CORE"`
+        unzip -q -n `basename "$STANFORD_CORE"`
         rm `basename "$STANFORD_CORE"`
         ln -s `find -name \*full\* -type d` core
     fi
@@ -47,7 +47,7 @@ function fetch_stanford_lang_models {
     get_if_not_there $STANFORD_EN 
     get_if_not_there $STANFORD_FR
     get_if_not_there $STANFORD_SP 
-    find . -name \*.jar -exec unzip -o '{}' ';'
+    find . -name \*.jar -exec unzip -q -o '{}' ';'
     rm *.jar
 }
 
@@ -95,26 +95,24 @@ else
     cd ..
 fi
 
-is_python2_7_avail
+#is_python2_7_avail
 
-if [ ! -d 'env' ]; then
-    echo "Creating new virtualenv using python2.7 in ./env"
-    virtualenv -p python2.7 ./env
-
-    echo "Entering virtualenv, to leave: deactivate"
-    source env/bin/activate
-
-    echo "Installing the following packages via pip:"
-    cat requirements.txt
-    pip install -r requirements.txt
-fi
-
-
-if [ ! -d 'tika' ]; then
-    mkdir tika && cd tika
-    get_if_not_there $TIKA
-    unzip -n `basename "$TIKA"`
-    rm `basename "$TIKA"`
-fi
+#if [ ! -d 'env' ]; then
+#    echo "Creating new virtualenv using python2.7 in ./env"
+#    virtualenv -p python2.7 ./env
+#
+#    echo "Entering virtualenv, to leave: deactivate"
+#    source env/bin/activate
+#
+#    echo "Installing the following packages via pip:"
+#    cat requirements.txt
+#    pip install -r requirements.txt
+#fi
 
 
+#if [ ! -d 'tika' ]; then
+#    mkdir tika && cd tika
+#    get_if_not_there $TIKA
+#    unzip -q -n `basename "$TIKA"`
+#    rm `basename "$TIKA"`
+#fi
