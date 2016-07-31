@@ -95,6 +95,8 @@ else
     cd ..
 fi
 
+pip install -U pip setuptools
+
 #is_python2_7_avail
 
 #if [ ! -d 'env' ]; then
