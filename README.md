@@ -4,9 +4,9 @@
 What does Narralyzer do?
 Narralyzer will help you quickly analyze the occurrence of and relations between Entities in narrative texts, such as novels, short stories and newspaper articles in four languages. The following aspects of narrative texts are included in the analysis:
 
-NER (Named Entity Recognition) 
-Relations between Entities 
-Entity-text detection (aura of n = x)
+* NER (Named Entity Recognition) 
+* Relations between Entities 
+* Entity-text detection (aura of n = x)
 
 Based on the NER and relation-analysis 
 1. A visualization (using GraphViz, see www.graphviz.org) of the relations between Entities can be created, per text-part and for the entire text
@@ -27,11 +27,10 @@ Wildschut, P.A., Faber, W-J. (2016) Narralyzer. Analyzing Narratives with DH-too
 
 # Contact
 For questions and remarks, please contact Puck Wildschut (p.wildschut@let.ru.nl)
-For technical support, please contact Willem-Jan Faber ([willemjan.faber@kb.nl])
+For technical support, contact Willem-Jan Faber ([willemjan.faber@kb.nl])
 
 # Further information
 Narralyzer has been created within the context of the Researcher-in-residence programme, funded by the National Library of the Netherlands (KB). Narralyzer is the intellectual property of its authors (sic) and the Radboud University Nijmegen. 
-
 
 <p align="center">
 <img src="https://raw.githubusercontent.com/WillemJan/Narralyzer/master/artwork/narralyzer_logo_small.png">
