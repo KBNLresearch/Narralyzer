@@ -13,11 +13,8 @@ addons:
   apt:
     packages:
     - libdb-dev
-    - virtualenv
     - libxml2-dev
     - libxslt1-dev
-    - python2.7
-    - virtualenv
 before_install:
   - bash install.sh
 install:
