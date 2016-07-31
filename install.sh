@@ -91,8 +91,6 @@ if [ ! -d 'models' ]; then
     mkdir models && cd models
     fetch_stanford_lang_models
     cd ..
-else
-    cd ..
 fi
 
 pip install -U pip setuptools
@@ -108,7 +106,8 @@ if [ ! -d 'env' ]; then
 
     echo "Installing the following packages via pip:"
     cat requirements.txt
-    pip install -r requirements.txt
+    pip install --upgrade pip
+    pip install -r ~/requirements.txt
 fi
 
 
