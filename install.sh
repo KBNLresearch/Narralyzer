@@ -107,7 +107,13 @@ if [ ! -d 'env' ]; then
     echo "Installing the following packages via pip:"
     cat requirements.txt
     pip install --upgrade pip
-    pip install -r ~/requirements.txt
+    if [ -f ~/requirements.txt ]; then
+        pip install -r ~/requirements.txt
+    fi
+    req=`find . -name 'requirements.txt'  | grep '/Narralyzer/'`
+    if [ -f $req ]; then
+        pip install -r $req
+    fi
 fi
 
 
