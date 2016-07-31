@@ -1,23 +1,25 @@
-sudo: false
-language: python
+sudo: yes
+language: java
+jdk:
+  - oraclejdk8
 notifications:
   email:
     recipients:
       - willemjanfaber@fe2.nl
     on_success: change
     on_failure: always
-python:
-  - "2.7"
 cache: apt
 addons:
   apt:
     packages:
     - libdb-dev
+    - oracle-java8-installer
     - libxml2-dev
     - libxslt1-dev
-before_install:
-  - bash install.sh
+    - pyton2.7
+    - python-pip
+    - virtualenv
 install:
-  - pip install -r requirements.txt
+  - bash install.sh
 script:
   - bash run-tests.sh

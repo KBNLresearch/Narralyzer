@@ -97,19 +97,19 @@ fi
 
 pip install -U pip setuptools
 
-#is_python2_7_avail
+is_python2_7_avail
 
-#if [ ! -d 'env' ]; then
-#    echo "Creating new virtualenv using python2.7 in ./env"
-#    virtualenv -p python2.7 ./env
-#
-#    echo "Entering virtualenv, to leave: deactivate"
-#    source env/bin/activate
-#
-#    echo "Installing the following packages via pip:"
-#    cat requirements.txt
-#    pip install -r requirements.txt
-#fi
+if [ ! -d 'env' ]; then
+    echo "Creating new virtualenv using python2.7 in ./env"
+    virtualenv -p python2.7 ./env
+
+    echo "Entering virtualenv, to leave: deactivate"
+    source env/bin/activate
+
+    echo "Installing the following packages via pip:"
+    cat requirements.txt
+    pip install -r requirements.txt
+fi
 
 
 #if [ ! -d 'tika' ]; then
