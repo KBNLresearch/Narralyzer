@@ -1,12 +1,7 @@
 #!/usr/bin/env python2.7
 # -*- coding: utf-8 -*-
 """
-    narralyzer.lang_lib
-    ~~~~~~~~~~~~~~~~~~~
     Implements sentence level analyzer for natural language.
-
-    :copyright: (c) 2016 Koninklijke Bibliotheek, by Willem Jan Faber.
-    :license: GPLv3, see licence.txt for more details.
 """
 
 import sys
