@@ -11,9 +11,9 @@ done
 
 timeout 1 bash -c 'cat < /dev/null > /dev/tcp/localhost/9990'
 while [ $? == "1" ]; do
-    timeout 1 bash -c 'cat < /dev/null > /dev/tcp/localhost/9990'
     sleep 1
     echo "Stanford not ready, waiting to boot.."
+    timeout 1 bash -c 'cat < /dev/null > /dev/tcp/localhost/9990'
 done
 
 . start_stanford.sh
