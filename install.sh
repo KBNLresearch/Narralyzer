@@ -93,8 +93,8 @@ if [ ! -d 'models' ]; then
     cd ..
 fi
 
-pip install -U pip setuptools
-pip install --upgrade pip
+pip install --user -U pip setuptools
+pip install --user --upgrade pip
 
 is_python2_7_avail
 
@@ -106,13 +106,13 @@ if [ ! -d 'env' ]; then
     source env/bin/activate
 
     echo "Installing the following packages via pip:"
-    pip install --upgrade pip
+    pip install --user --upgrade pip
     if [ -f ~/requirements.txt ]; then
-        pip install -r ~/requirements.txt
+        pip install --user -r ~/requirements.txt
     fi
     req=`find . -name 'requirements.txt'  | grep '/Narralyzer/'`
     if [ -f $req ]; then
-        pip install -r $req
+        pip --user install -r $req
     fi
 fi
 
