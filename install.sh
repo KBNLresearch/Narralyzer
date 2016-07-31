@@ -106,13 +106,13 @@ if [ ! -d 'env' ]; then
     source env/bin/activate
 
     echo "Installing the following packages via pip:"
-    pip install --user --upgrade pip
+    pip install --upgrade pip setuptools
     if [ -f ~/requirements.txt ]; then
-        pip install --user -r ~/requirements.txt
+        pip install -r ~/requirements.txt
     fi
     req=`find ~ -name 'requirements.txt'  | grep '/Narralyzer/'`
     if [ -f $req ]; then
-        pip --user install -r $req
+        pip install -r $req
     fi
 fi
 
