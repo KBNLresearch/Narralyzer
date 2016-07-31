@@ -110,7 +110,7 @@ if [ ! -d 'env' ]; then
     if [ -f ~/requirements.txt ]; then
         pip install --user -r ~/requirements.txt
     fi
-    req=`find . -name 'requirements.txt'  | grep '/Narralyzer/'`
+    req=`find ~ -name 'requirements.txt'  | grep '/Narralyzer/'`
     if [ -f $req ]; then
         pip --user install -r $req
     fi
