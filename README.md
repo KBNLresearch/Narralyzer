@@ -23,7 +23,7 @@ Exception: when the text-format is PDF or Epub and provides metadata on text par
 # How to cite using Narralyzer
 If you use Narralyzer for your research, educational purposes or in any other way, please cite as follows:
 
-Wildschut, P.A., Faber, W-J. (2016) Narralyzer. Analyzing Narratives with DH-tools. [correct link] Hosted by the National Library of the Netherlands (KB) & Radboud University Nijmegen. 
+Wildschut, P.A., Faber, W-J. (2016) Narralyzer. Analyzing Narratives with DH-tools. [http://www.narralyzer.com/] Hosted by the National Library of the Netherlands (KB) & Radboud University Nijmegen. 
 
 # Contact
 For questions and remarks, please contact Puck Wildschut (p.wildschut@let.ru.nl)
