@@ -93,6 +93,8 @@ if [ ! -d 'models' ]; then
     cd ..
 fi
 
+cd ..
+
 pip install --user -U pip setuptools
 pip install --user --upgrade pip
 
