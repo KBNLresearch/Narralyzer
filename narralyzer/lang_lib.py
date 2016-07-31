@@ -37,7 +37,7 @@ class Language:
 
         - Part-of-speech tagging (Using CLiPS-pattern)
         - Sentencte analysis (Using CLiPS-pattern)
-        - Named entitie extraction (Using Stanford CoreNLP)
+        - Named entity extraction (Using Stanford CoreNLP)
 
     About
     -----
