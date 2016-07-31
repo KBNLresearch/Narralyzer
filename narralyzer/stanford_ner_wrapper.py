@@ -171,8 +171,9 @@ def stanford_ner_wrapper(text, port, host='localhost'):
 
 
 if __name__ == '__main__':
-    import doctest
-    doctest.testmod()
+    if len(sys.argv) >= 2 and 'doc' in " ".join(sys.argv):
+        import doctest
+        doctest.testmod()
 
     if len(sys.argv) >= 2 and 'profile' in " ".join(sys.argv):
         from gutenberg.acquire import load_etext

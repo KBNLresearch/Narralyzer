@@ -435,11 +435,9 @@ def _test_NL():
     pprint(lang.result)
 
 if __name__ == '__main__':
-    import doctest
-    doctest.testmod()
-
-    # _test_NL()
-
+    if len(sys.argv) >= 2 and "test" in " ".join(sys.argv):
+        import doctest
+        doctest.testmod()
     if len(sys.argv) >= 2 and "time" or "profile" in " ".join(sys.argv):
         import time
         import json
