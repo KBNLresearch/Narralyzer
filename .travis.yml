@@ -8,17 +8,9 @@ notifications:
       - willemjanfaber@fe2.nl
     on_success: change
     on_failure: always
-cache: apt
-addons:
-  apt:
-    packages:
-    - libdb-dev
-    - oracle-java8-installer
-    - libxml2-dev
-    - libxslt1-dev
-    - pyton2.7
-    - python-pip
-    - virtualenv
+before_install:
+    - sudo apt-get -qq update
+    - sudo apt-get install -y libxml2-dev libdb-dev python2.7 virtualenv python-pip
 install:
   - bash install.sh
 script:
