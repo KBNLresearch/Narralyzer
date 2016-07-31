@@ -1,5 +1,7 @@
 # About Narralyzer
-![Narralyzer logo](https://raw.githubusercontent.com/WillemJan/Narralyzer/master/artwork/narralyzer_logo_small.png){"style="float: right;margin-right: 7px;margin-top: 7px;"}
+<div style="float: right">
+![Narralyzer logo](https://raw.githubusercontent.com/WillemJan/Narralyzer/master/artwork/narralyzer_logo_small.png)
+</div>
 
 What does Narralyzer do?
 Narralyzer will help you quickly analyze the occurrence of and relations between Entities in narrative texts, such as novels, short stories and newspaper articles in four languages. The following aspects of narrative texts are included in the analysis:
