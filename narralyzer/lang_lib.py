@@ -5,11 +5,16 @@
     ~~~~~~~~~~~~~~~~~~~
     Implements sentence level analyzer for natural language.
 
+    Method: Building on the shoulders of giants :)
+
     :copyright: (c) 2016 Koninklijke Bibliotheek, by Willem Jan Faber.
     :license: GPLv3, see licence.txt for more details.
 """
 
 import sys
+reload(sys)
+sys.setdefaultencoding('utf-8')
+
 import importlib
 import string
 
@@ -23,8 +28,9 @@ from threading import Thread
 # TODO Move this to a seperate config module.
 STANFORD_NER_SERVERS = {"de": 9990,
                         "en": 9991,
-                        "nl": 9992,
-                        "sp": 9993}
+                        "fr": 9992,
+                        "nl": 9993,
+                        "sp": 9994}
 
 
 class Language:
@@ -105,6 +111,10 @@ class Language:
     http://fnl.es/segtok-a-segmentation-and-tokenization-library.html
     Segtok / Sentencte segmentation.
 
+    https://github.com/datamade/probablepeople
+    probablepeople / Verify & split names.
+
+
     Source code: https://github.com/KBNLresearch/Narralyzer
     '''
     sentences = {}
@@ -114,6 +124,8 @@ class Language:
     nr_of_threads = 10
 
     use_stats = True
+
+    sentiment_avail = True
 
     def __init__(self, text=False, lang=False, use_langdetect=True):
         if not text:
@@ -160,7 +172,12 @@ class Language:
             sys.exit(-1)
 
         self._pattern_parse = pattern.parse
-        self._pattern_sentiment = pattern.sentiment
+
+        try:
+            self._pattern_sentiment = pattern.sentiment
+        except:
+            self.sentiment_avail = False
+
         self._pattern_tag = pattern.tag
 
         self.result = {"text": text,
@@ -253,7 +270,8 @@ class Language:
         if len(sentence) < 2:
             return result
 
-        result["sentiment"] = self._pattern_sentiment(sentence)
+        if self.sentiment_avail:
+            result["sentiment"] = self._pattern_sentiment(sentence)
         result["stanford"] = stanford_ner_wrapper(sentence, self.stanford_port)
 
         pos = []
@@ -435,10 +453,9 @@ def _test_NL():
     pprint(lang.result)
 
 if __name__ == '__main__':
-    import doctest
-    doctest.testmod()
-
-    # _test_NL()
+    if len(sys.argv) >= 2 and "test" in " ".join(sys.argv):
+        import doctest
+        doctest.testmod(verbose=True)
 
     if len(sys.argv) >= 2 and "time" or "profile" in " ".join(sys.argv):
         import time
@@ -453,7 +470,7 @@ if __name__ == '__main__':
         gutenberg_test_id = 17685
         # Fetch a test book from gutenberg.
         # http://www.gutenberg.org/ebooks/
-        text = smart_text(strip_headers(load_etext(gutenberg_test_id)).strip())
+        text = smart_text(strip_headers(load_etext(gutenberg_test_id)).strip()).replace('\n', ' ')
 
         if "time" in " ".join(sys.argv):
             print("Timing non-threaded lang_lib")
@@ -480,7 +497,7 @@ if __name__ == '__main__':
             with open(outfile, "w") as fh:
                 fh.write(json.dumps(lang.result))
 
-        with PyCallGraph(output=GraphvizOutput()):
-            lang = Language(text)
-            lang.use_threads = True
-            lang.parse()
+            with PyCallGraph(output=GraphvizOutput()):
+                lang = Language(text)
+                lang.use_threads = True
+                lang.parse()

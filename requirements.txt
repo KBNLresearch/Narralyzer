@@ -11,9 +11,10 @@ lxml
 mako
 numpy
 pattern
+probablepeople  
+pycallgraph
 python-dateutil
 python-magic
 requests
 segtok
 stop-words
-pycallgraph
