@@ -1,9 +1,11 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 #
-# start_stanford.sh
-# This file is part of the narralyzer package.
-# see: http://github.com/
+# File: start_stanford.sh
+#
+# This file is part of the Narralyzer package.
+# see: http://github.com/WillemJan/Narralyzer
+#
 
 #
 # This program is free software: you can redistribute it and/or modify
@@ -20,17 +22,55 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-JAVA=`which java`
+DE_CLASSIFIER="../models/edu/stanford/nlp/models/ner/german.dewac_175m_600.crf.ser.gz"
+DE_PORT=9990
 
-# private little hack ;)
+EN_CLASSIFIER="../models/edu/stanford/nlp/models/ner/english.all.3class.distsim.crf.ser.gz"
+EN_PORT=9991
+
+# FR_CLASSIFIER="../models/edu/stanford/nlp/models/srparser/frenchSR.beam.ser.gz"
+# FR_PORT=9992
+
+NL_CLASSIFIER="../models/dutch.crf.gz"
+NL_PORT=9993
+
+SP_CLASSIFIER="../models//edu/stanford/nlp/models/ner/spanish.ancora.distsim.s512.crf.ser.gz"
+SP_PORT=9994
+
+SUPPORTED_LANG="DE EN NL SP"
+
+# Little wrapper to datestamp outgoing messages.
+function inform_user() {
+    msg="$1"
+    timestamp=`date "+%Y-%m-%d %H:%M"`
+    echo "$timestamp: Narralyzer start_stanford.sh $msg"
+}
+
+# Path to Stanford-core lib.
+# (Should be installed the by install.sh).
+PATH_TO_STANFORD_CORE="stanford/core/"
+inform_user "Changing directory to $PATH_TO_STANFORD_CORE"
+cd $PATH_TO_STANFORD_CORE
+
+# Prefix for logfile output name, to turn logging off
+# change LOG to "/dev/null".
+LOG="stanford_"
+
+# Use system wide default java.
+JAVA=`which java`
+# Except if your hostname "fe2"
+# So this private litte hack is to be ignored.
 if [ $HOSTNAME == "fe2" ]; then
     JAVA=/home/aloha/java/bin/java
 fi
 
-MEM="-mx4g"
+java_version=($JAVA -version)
+inform_user "Using java version: $java_version"
 
-cd stanford/core/
+# Use a whopping 4g per language.
+JAVA_MEM="-mx4g"
 
+# From the Stanford repo:
 OS=`uname`
 # Some machines (older OS X, BSD, Windows environments) don't support readlink -e
 if hash readlink 2>/dev/null; then
@@ -40,28 +80,32 @@ else
   scriptdir=$(dirname "$scriptpath")
 fi
 
-echo java -mx5g -cp \"$scriptdir/*\" edu.stanford.nlp.pipeline.StanfordCoreNLP $*
-
-DE_CLASSIFIER='../models//edu/stanford/nlp/models/ner/german.dewac_175m_600.crf.ser.gz'
-DE_PORT=9990
-
-EN_CLASSIFIER='../models//edu/stanford/nlp/models/ner/english.all.3class.distsim.crf.ser.gz'
-EN_PORT=9991
-
-NL_CLASSIFIER='../../models/dutch.crf.gz'
-NL_PORT=9992
-
-SP_CLASSIFIER='../models//edu/stanford/nlp/models/ner/spanish.ancora.distsim.s512.crf.ser.gz'
-SP_PORT=9993
-
-SUPPORTED_LANG="DE EN NL SP"
-#SUPPORTED_LANG="NL"
-
-for lang in $(echo $SUPPORTED_LANG | xargs);do
-    port=$(eval "echo \$${lang}_PORT")
+# Fire several stanford core server.
+for lang in $(echo $SUPPORTED_LANG | sort | xargs);do
     classifier=$(eval "echo \$${lang}_CLASSIFIER")
-    ($JAVA $MEM -Djava.net.preferIPv4Stack=true -cp "$scriptdir/*" edu.stanford.nlp.ie.NERServer -port $port -loadClassifier $classifier -outputFormat inlineXML) &
-    echo $lang $port
+    port=$(eval "echo \$${lang}_PORT")
+    is_running=$(ps x | grep "$classifier" | grep -v 'grep' | wc -l)
+    if [ "$is_running" == "1" ]; then
+        inform_user "Not starting $lang on port $port for it is allready running."
+    else
+        inform_user "Starting Stanford-core for language: $lang on port: $port"
+        inform_user "$JAVA $JAVA_MEM -Djava.net.preferIPv4Stack=true -cp $scriptdir/\* edu.stanford.nlp.ie.NERServer -port $port -loadClassifier $classifier -outputFormat inlineXML"
+        # TODO Logging would be nice.
+        $JAVA $JAVA_MEM -Djava.net.preferIPv4Stack=true -cp $scriptdir/\* edu.stanford.nlp.ie.NERServer -port $port -loadClassifier $classifier -outputFormat inlineXML > "$LOG$lang.log" 2>&1  &
+    fi
 done
 
+# Wait until the cores are booted and responsive,
+# if parameter 'waitforstartup' is given to start_stanford.sh.
+for lang in $(echo $SUPPORTED_LANG | sort | xargs);do
+    port=$(eval "echo \$${lang}_PORT")
+    if [ "$1" == "waitforstartup" ];then
+        while true; do
+            inform_user "Waiting for Stanford-core: $lang port: $port"
+            nc -z -w 1 127.0.0.1 $port && break
+        done
+    fi
+done
+
+inform_user "Moving to directory where we started"
 cd -

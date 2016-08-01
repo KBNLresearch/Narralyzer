@@ -10,6 +10,9 @@
 """
 
 import sys
+reload(sys)
+sys.setdefaultencoding('utf-8')
+
 import importlib
 import string
 
@@ -23,8 +26,9 @@ from threading import Thread
 # TODO Move this to a seperate config module.
 STANFORD_NER_SERVERS = {"de": 9990,
                         "en": 9991,
-                        "nl": 9992,
-                        "sp": 9993}
+                        "fr": 9992,
+                        "nl": 9993,
+                        "sp": 9994}
 
 
 class Language:
@@ -115,6 +119,8 @@ class Language:
 
     use_stats = True
 
+    sentiment_avail = True
+
     def __init__(self, text=False, lang=False, use_langdetect=True):
         if not text:
             msg = "Did not get any text to look at."
@@ -160,7 +166,12 @@ class Language:
             sys.exit(-1)
 
         self._pattern_parse = pattern.parse
-        self._pattern_sentiment = pattern.sentiment
+
+        try:
+            self._pattern_sentiment = pattern.sentiment
+        except:
+            self.sentiment_avail = False
+
         self._pattern_tag = pattern.tag
 
         self.result = {"text": text,
@@ -253,7 +264,8 @@ class Language:
         if len(sentence) < 2:
             return result
 
-        result["sentiment"] = self._pattern_sentiment(sentence)
+        if self.sentiment_avail:
+            result["sentiment"] = self._pattern_sentiment(sentence)
         result["stanford"] = stanford_ner_wrapper(sentence, self.stanford_port)
 
         pos = []
@@ -438,6 +450,29 @@ if __name__ == '__main__':
     if len(sys.argv) >= 2 and "test" in " ".join(sys.argv):
         import doctest
         doctest.testmod(verbose=True)
+
+    # 31727 <- german book
+    from gutenberg.acquire import load_etext
+    from gutenberg.cleanup import strip_headers
+    from django.utils.encoding import smart_text
+    import codecs
+    import json
+        
+    gutenberg_test_id = 31727 
+    print(strip_headers(load_etext(gutenberg_test_id)).strip()[100:900].decode('latin-1'))
+    '''
+    text = smart_text(strip_headers(load_etext(gutenberg_test_id)).strip())
+
+    lang = Language(text)
+    lang.use_threads = False
+    lang.parse()
+    outfile = 'german_test.json'
+    with codecs.open(outfile, "w", 'utf-8') as fh:
+        fh.write(json.dumps(lang.result))
+
+    '''
+
+
     if len(sys.argv) >= 2 and "time" or "profile" in " ".join(sys.argv):
         import time
         import json
@@ -451,8 +486,9 @@ if __name__ == '__main__':
         gutenberg_test_id = 17685
         # Fetch a test book from gutenberg.
         # http://www.gutenberg.org/ebooks/
-        text = smart_text(strip_headers(load_etext(gutenberg_test_id)).strip())
+        text = smart_text(strip_headers(load_etext(gutenberg_test_id)).strip()).replace('\n', ' ')
 
+ 
         if "time" in " ".join(sys.argv):
             print("Timing non-threaded lang_lib")
             s = time.time()
