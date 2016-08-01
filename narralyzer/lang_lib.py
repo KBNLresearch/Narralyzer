@@ -109,6 +109,10 @@ class Language:
     http://fnl.es/segtok-a-segmentation-and-tokenization-library.html
     Segtok / Sentencte segmentation.
 
+    https://github.com/datamade/probablepeople
+    probablepeople / Verify & split names.
+
+
     Source code: https://github.com/KBNLresearch/Narralyzer
     '''
     sentences = {}
@@ -450,28 +454,6 @@ if __name__ == '__main__':
     if len(sys.argv) >= 2 and "test" in " ".join(sys.argv):
         import doctest
         doctest.testmod(verbose=True)
-
-    # 31727 <- german book
-    from gutenberg.acquire import load_etext
-    from gutenberg.cleanup import strip_headers
-    from django.utils.encoding import smart_text
-    import codecs
-    import json
-        
-    gutenberg_test_id = 31727 
-    print(strip_headers(load_etext(gutenberg_test_id)).strip()[100:900].decode('latin-1'))
-    '''
-    text = smart_text(strip_headers(load_etext(gutenberg_test_id)).strip())
-
-    lang = Language(text)
-    lang.use_threads = False
-    lang.parse()
-    outfile = 'german_test.json'
-    with codecs.open(outfile, "w", 'utf-8') as fh:
-        fh.write(json.dumps(lang.result))
-
-    '''
-
 
     if len(sys.argv) >= 2 and "time" or "profile" in " ".join(sys.argv):
         import time
