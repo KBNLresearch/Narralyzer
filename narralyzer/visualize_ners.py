@@ -9,6 +9,10 @@
     :license: GPLv3, see licence.txt for more details.
 """
 
+import sys
+reload(sys)
+sys.setdefaultencoding('utf-8')
+
 import os
 import string
 import sys
