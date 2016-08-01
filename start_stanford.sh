@@ -104,7 +104,7 @@ for lang in $(echo $SUPPORTED_LANG | sort | xargs);do
         while [ "$count" != "1" ]; do
             inform_user "Waiting for Stanford-core: $lang port: $port"
             sleep 1
-            count=$(lsof -i tcp -n | grep $port)
+            count=$(lsof -i tcp -n | grep $port | wc -l)
         done
     fi
 done
