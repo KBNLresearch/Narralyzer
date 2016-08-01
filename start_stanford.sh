@@ -100,9 +100,11 @@ done
 for lang in $(echo $SUPPORTED_LANG | sort | xargs);do
     port=$(eval "echo \$${lang}_PORT")
     if [ "$1" == "waitforstartup" ];then
-        while true; do
+        count=$(lsof -i tcp -n | grep $port | wc -l)
+        while [ "$count" != "1" ]; do
             inform_user "Waiting for Stanford-core: $lang port: $port"
-            nc -z -w 1 127.0.0.1 $port && break
+            sleep 1
+            count=$(lsof -i tcp -n | grep $port)
         done
     fi
 done
