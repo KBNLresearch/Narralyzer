@@ -5,6 +5,8 @@
     ~~~~~~~~~~~~~~~~~~~
     Implements sentence level analyzer for natural language.
 
+    Method: Building on the shoulders of giants :)
+
     :copyright: (c) 2016 Koninklijke Bibliotheek, by Willem Jan Faber.
     :license: GPLv3, see licence.txt for more details.
 """
@@ -470,7 +472,6 @@ if __name__ == '__main__':
         # http://www.gutenberg.org/ebooks/
         text = smart_text(strip_headers(load_etext(gutenberg_test_id)).strip()).replace('\n', ' ')
 
- 
         if "time" in " ".join(sys.argv):
             print("Timing non-threaded lang_lib")
             s = time.time()
