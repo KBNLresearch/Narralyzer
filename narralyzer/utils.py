@@ -21,7 +21,7 @@ import os
 import time
 
 from lang_lib import Language
-current_path = os.path.realpath(__file__.replace(os.path.basename(os.path.realpath(__file__)),''))
+current_path = os.path.realpath(__file__.replace(os.path.basename(os.path.realpath(__file__)), os.sep))
 
 # Path to test data
 TEST_DATA = current_path + '../test_data/'
