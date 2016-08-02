@@ -39,11 +39,11 @@ def load_test_book(fname, force=False, return_json=False, verbose=True):
     '''
     fname = os.path.basename(fname)
     ofname = os.path.join(OUTPUT, fname.replace('.txt', '.pickle.gz'))
-    fname = os.path.join(TEST_DATA, fname)
+    fname_txt = os.path.join(TEST_DATA, fname)
 
     if not os.path.isfile(ofname) and not force:
         # Open and read the test-book.
-        fh = codecs.open(fname, 'r', encoding='utf-8')
+        fh = codecs.open(fname_txt, 'r', encoding='utf-8')
         book = fh.read().replace('\n', ' ')
         fh.close()
 
@@ -61,6 +61,8 @@ def load_test_book(fname, force=False, return_json=False, verbose=True):
         fh.close()
         result = lang.result
     else:
+        if not os.path.isfile(ofname):
+            ofname = os.path.join("..", OUTPUT, fname.replace('.txt', '.pickle.gz'))
         # Load the tagged sentences from a compressed pickle file.
         fh = gzip.GzipFile(ofname, 'rb')
         raw_data = ""
