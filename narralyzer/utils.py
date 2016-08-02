@@ -81,10 +81,11 @@ def load_test_book(fname, force=False, return_json=False, verbose=True):
     return result
 
 if __name__ == "__main__":
-    if len(sys.argv) >= 2 and 'test' in " ".join(sys.argv):
-        import doctest
-        doctest.testmod(verbose=True)
+    print("Relativity theory")
+    #if len(sys.argv) >= 2 and 'test' in " ".join(sys.argv):
+    #    import doctest
+    #    doctest.testmod(verbose=True)
 
-    from pprint import pprint
-    book = load_test_book('dutch_book_gbid_20060.txt')
-    pprint(book)
+    #from pprint import pprint
+    #book = load_test_book('dutch_book_gbid_20060.txt')
+    #pprint(book)
