@@ -1,7 +1,8 @@
 # About Narralyzer
 
-*work in progress*
+# *work in progress*
 
+For quick info:
 http://www.narralyzer.com/
 (No, we're not selling you deterrent or running shoes, 100% GPL / Open)
 
