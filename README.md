@@ -1,5 +1,10 @@
 # About Narralyzer
 
+*work in progress*
+
+http://www.naralizer.com/
+(No, we're not selling you deterrent or running shoes, 100% GPL / Open)
+
 
 What does Narralyzer do?
 Narralyzer will help you quickly analyze the occurrence of and relations between Entities in narrative texts, such as novels, short stories and newspaper articles in four languages. The following aspects of narrative texts are included in the analysis:
