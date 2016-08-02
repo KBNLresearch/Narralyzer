@@ -39,7 +39,7 @@ def load_test_book(fname, force=False, return_json=False, verbose=True):
     '''
     fname = os.path.basename(fname)
     ofname = os.path.join(OUTPUT, fname.replace('.txt', '.pickle.gz'))
-    fname_txt = os.path.join(TEST_DATA, fname)
+    fname_txt = os.path.join('..', TEST_DATA, fname)
 
     if not os.path.isfile(ofname) and not force:
         # Open and read the test-book.
