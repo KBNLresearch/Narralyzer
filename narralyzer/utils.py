@@ -23,7 +23,7 @@ import time
 from lang_lib import Language
 
 
-current_path = __file__.replace(os.path.basename(__file__), '')
+current_path = os.path.realpath(__file__)
 
 # Path to test data
 TEST_DATA = current_path + '../test_data/'
