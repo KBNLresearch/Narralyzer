@@ -12,9 +12,13 @@
     Docs on probablepeople are found here:
     http://probablepeople.readthedocs.io/
 
-    :copyright: (c) 2016 Koninklijke Bibliotheek, by Willem Jan Faber.
+    :copyright: (c) 2016 Koninklijke Bibliotheek, by Willem-Jan Faber.
     :license: GPLv3, see licence.txt for more details.
 """
+
+import sys
+reload(sys)
+sys.setdefaultencoding('utf-8')
 
 import logging
 import lxml.html
@@ -55,24 +59,29 @@ def _tcpip4_socket(host, port):
             sock.close()
 
 
-def stanford_ner_wrapper(text, port, use_pp=False, host='localhost'):
+def stanford_ner_wrapper(text, port=False, use_pp=True, host='localhost'):
     """
     Standalone function to fetch results from Stanford ner, and appy probablepeople.
 
 
-    >>> res = stanford_ner_wrapper("Paris Hilton is bang dat terreurgroepen of individuen het op haar hebben gemunt. Ik ben een bekend persoon en zou zeker een doelwit kunnen zijn, zegt de socialite in een interview met Diario De Ibiza.", 9993, True)
+    >>> res = stanford_ner_wrapper("Willem-Alexander (Dutch: [ˈʋɪləm aːlɛkˈsɑndər]; Willem-Alexander Claus George Ferdinand; born 27 April 1967) is the King of the Netherlands.", 9991, True)
     >>> from pprint import pprint;pprint(res)
-    {'ners': [{'string': 'Paris Hilton', 'tag': 'per'},
-              {'string': 'Diario De Ibiza', 'tag': 'per'}],
-     'pp': [(OrderedDict([('GivenName', 'Paris'), ('Surname', 'Hilton')]),
-             'Person'),
-            (OrderedDict([('GivenName', 'Diario'), ('Surname', 'De Ibiza')]),
-             'Person')],
-     'raw_ners': [{'string': 'Paris', 'tag': 'b-per'},
-                  {'string': 'Hilton', 'tag': 'i-per'},
-                  {'string': 'Diario', 'tag': 'b-per'},
-                  {'string': 'De Ibiza', 'tag': 'i-per'}],
-     'raw_response': u'<B-PER>Paris</B-PER> <I-PER>Hilton</I-PER> is bang dat terreurgroepen of individuen het op haar hebben gemunt. Ik ben een bekend persoon en zou zeker een doelwit kunnen zijn, zegt de socialite in een interview met <B-PER>Diario</B-PER> <I-PER>De Ibiza</I-PER>.'}
+    {'ners': [{'string': 'Willem-Alexander', 'tag': 'person'},
+              {'string': 'Willem-Alexander Claus George Ferdinand',
+               'tag': 'person'},
+              {'string': 'Netherlands', 'tag': 'location'}],
+     'pp': [{'parse': [('Willem-Alexander', 'GivenName')],
+             'tag': {'GivenName': 'Willem-Alexander'}},
+            {'parse': [('Willem-Alexander', 'CorporationName'),
+                       ('Claus', 'CorporationName'),
+                       ('George', 'CorporationName'),
+                       ('Ferdinand', 'CorporationName')],
+             'tag': {'CorporationName': 'Willem-Alexander Claus George Ferdinand'}}],
+     'raw_ners': [{'string': 'Willem-Alexander', 'tag': 'person'},
+                  {'string': 'Willem-Alexander Claus George Ferdinand',
+                   'tag': 'person'},
+                  {'string': 'Netherlands', 'tag': 'location'}],
+     'raw_response': u'<PERSON>Willem-Alexander</PERSON> (Dutch: [\u02c8\u028b\u026al\u0259m a\u02d0l\u025bk\u02c8s\u0251nd\u0259r]; <PERSON>Willem-Alexander Claus George Ferdinand</PERSON>; born 27 April 1967) is the King of the <LOCATION>Netherlands</LOCATION>.'}
     >>> res = stanford_ner_wrapper("Prof. Albert Einstein vertoeft op het oogenblik te Londen, en gisteravond was hij in Savoy Hotel eeregast aan een diner, gegeven door de Ort and Oze Societies. De voorzitter van de Engelsche sectie dier Vereeniging is Lord • Rothschild ; de voorzitter van de Duitsche sectie is prof. Einstein.  Lord Rothschild presideerde het diner; aan zijn rechterhand zat de beroemdste geleerde van onzen tyd, aan zijn linkerhand de beroemdste dichter, Bernard Shaw. Rechts van Einstein zat Wells.  Het was een gastmaal voor het intellect en z|jn dames.  Ik wil er geen verslag van geven, maar my bepalen tot enkele aanteekeningen.", 9993, True)
     >>> from pprint import pprint;pprint(res)
     {'ners': [{'string': 'Albert Einstein', 'tag': 'per'},
@@ -88,15 +97,15 @@ def stanford_ner_wrapper(text, port, use_pp=False, host='localhost'):
               {'string': 'Bernard Shaw', 'tag': 'per'},
               {'string': 'Einstein', 'tag': 'loc'},
               {'string': 'Wells', 'tag': 'per'}],
-     'pp': [(OrderedDict([('GivenName', 'Albert'), ('Surname', 'Einstein')]),
-             'Person'),
-            (OrderedDict([('GivenName', u'Lord'), ('Surname', u'Rothschild')]),
-             'Person'),
-            (OrderedDict([('GivenName', 'Lord'), ('Surname', 'Rothschild')]),
-             'Person'),
-            (OrderedDict([('GivenName', 'Bernard'), ('Surname', 'Shaw')]),
-             'Person'),
-            (OrderedDict([('Surname', 'Wells')]), 'Person')],
+     'pp': [{'parse': [('Albert', 'GivenName'), ('Einstein', 'Surname')],
+             'tag': {'GivenName': 'Albert', 'Surname': 'Einstein'}},
+            {'parse': [(u'Lord', 'GivenName'), (u'Rothschild', 'Surname')],
+             'tag': {'GivenName': u'Lord', 'Surname': u'Rothschild'}},
+            {'parse': [('Lord', 'GivenName'), ('Rothschild', 'Surname')],
+             'tag': {'GivenName': 'Lord', 'Surname': 'Rothschild'}},
+            {'parse': [('Bernard', 'GivenName'), ('Shaw', 'Surname')],
+             'tag': {'GivenName': 'Bernard', 'Surname': 'Shaw'}},
+            {'parse': [('Wells', 'Surname')], 'tag': {'Surname': 'Wells'}}],
      'raw_ners': [{'string': 'Albert', 'tag': 'b-per'},
                   {'string': 'Einstein', 'tag': 'i-per'},
                   {'string': 'Londen', 'tag': 'b-loc'},
@@ -117,8 +126,6 @@ def stanford_ner_wrapper(text, port, use_pp=False, host='localhost'):
                   {'string': 'Einstein', 'tag': 'b-loc'},
                   {'string': 'Wells', 'tag': 'b-per'}],
      'raw_response': u'Prof. <B-PER>Albert</B-PER> <I-PER>Einstein</I-PER> vertoeft op het oogenblik te <B-LOC>Londen</B-LOC>, en gisteravond was hij in <B-LOC>Savoy</B-LOC> <I-LOC>Hotel</I-LOC> eeregast aan een diner, gegeven door de <B-MISC>Ort</B-MISC> <I-MISC>and Oze Societies</I-MISC>. De voorzitter van de <B-MISC>Engelsche</B-MISC> sectie dier <B-LOC>Vereeniging</B-LOC> is <B-PER>Lord</B-PER> <I-PER>\u2022 Rothschild</I-PER> ; de voorzitter van de <B-MISC>Duitsche</B-MISC> sectie is prof. <B-LOC>Einstein</B-LOC>.  <B-PER>Lord</B-PER> <I-PER>Rothschild</I-PER> presideerde het diner; aan zijn rechterhand zat de beroemdste geleerde van onzen tyd, aan zijn linkerhand de beroemdste dichter, <B-PER>Bernard</B-PER> <I-PER>Shaw</I-PER>. Rechts van <B-LOC>Einstein</B-LOC> zat <B-PER>Wells</B-PER>.  Het was een gastmaal voor het intellect en z|jn dames.  Ik wil er geen verslag van geven, maar my bepalen tot enkele aanteekeningen.'}
-
-
     >>> res = stanford_ner_wrapper("Prof. Albert Einstein vertoeft op het oogenblik te Londen, en gisteravond was hij in Savoy Hotel eeregast aan een diner, gegeven door de Ort and Oze Societies. De voorzitter van de Engelsche sectie dier Vereeniging is Lord • Rothschild ; de voorzitter van de Duitsche sectie is prof. Einstein.  Lord Rothschild presideerde het diner; aan zijn rechterhand zat de beroemdste geleerde van onzen tyd, aan zijn linkerhand de beroemdste dichter, Bernard Shaw. Rechts van Einstein zat Wells.  Het was een gastmaal voor het intellect en z|jn dames.  Ik wil er geen verslag van geven, maar my bepalen tot enkele aanteekeningen.", 9993, True)
     >>> from pprint import pprint;pprint(res)
     {'ners': [{'string': 'Albert Einstein', 'tag': 'per'},
@@ -134,15 +141,15 @@ def stanford_ner_wrapper(text, port, use_pp=False, host='localhost'):
               {'string': 'Bernard Shaw', 'tag': 'per'},
               {'string': 'Einstein', 'tag': 'loc'},
               {'string': 'Wells', 'tag': 'per'}],
-     'pp': [(OrderedDict([('GivenName', 'Albert'), ('Surname', 'Einstein')]),
-             'Person'),
-            (OrderedDict([('GivenName', u'Lord'), ('Surname', u'Rothschild')]),
-             'Person'),
-            (OrderedDict([('GivenName', 'Lord'), ('Surname', 'Rothschild')]),
-             'Person'),
-            (OrderedDict([('GivenName', 'Bernard'), ('Surname', 'Shaw')]),
-             'Person'),
-            (OrderedDict([('Surname', 'Wells')]), 'Person')],
+     'pp': [{'parse': [('Albert', 'GivenName'), ('Einstein', 'Surname')],
+             'tag': {'GivenName': 'Albert', 'Surname': 'Einstein'}},
+            {'parse': [(u'Lord', 'GivenName'), (u'Rothschild', 'Surname')],
+             'tag': {'GivenName': u'Lord', 'Surname': u'Rothschild'}},
+            {'parse': [('Lord', 'GivenName'), ('Rothschild', 'Surname')],
+             'tag': {'GivenName': 'Lord', 'Surname': 'Rothschild'}},
+            {'parse': [('Bernard', 'GivenName'), ('Shaw', 'Surname')],
+             'tag': {'GivenName': 'Bernard', 'Surname': 'Shaw'}},
+            {'parse': [('Wells', 'Surname')], 'tag': {'Surname': 'Wells'}}],
      'raw_ners': [{'string': 'Albert', 'tag': 'b-per'},
                   {'string': 'Einstein', 'tag': 'i-per'},
                   {'string': 'Londen', 'tag': 'b-loc'},
@@ -163,7 +170,6 @@ def stanford_ner_wrapper(text, port, use_pp=False, host='localhost'):
                   {'string': 'Einstein', 'tag': 'b-loc'},
                   {'string': 'Wells', 'tag': 'b-per'}],
      'raw_response': u'Prof. <B-PER>Albert</B-PER> <I-PER>Einstein</I-PER> vertoeft op het oogenblik te <B-LOC>Londen</B-LOC>, en gisteravond was hij in <B-LOC>Savoy</B-LOC> <I-LOC>Hotel</I-LOC> eeregast aan een diner, gegeven door de <B-MISC>Ort</B-MISC> <I-MISC>and Oze Societies</I-MISC>. De voorzitter van de <B-MISC>Engelsche</B-MISC> sectie dier <B-LOC>Vereeniging</B-LOC> is <B-PER>Lord</B-PER> <I-PER>\u2022 Rothschild</I-PER> ; de voorzitter van de <B-MISC>Duitsche</B-MISC> sectie is prof. <B-LOC>Einstein</B-LOC>.  <B-PER>Lord</B-PER> <I-PER>Rothschild</I-PER> presideerde het diner; aan zijn rechterhand zat de beroemdste geleerde van onzen tyd, aan zijn linkerhand de beroemdste dichter, <B-PER>Bernard</B-PER> <I-PER>Shaw</I-PER>. Rechts van <B-LOC>Einstein</B-LOC> zat <B-PER>Wells</B-PER>.  Het was een gastmaal voor het intellect en z|jn dames.  Ik wil er geen verslag van geven, maar my bepalen tot enkele aanteekeningen.'}
-
     """
     for s in ("\f", "\n", "\r", "\t", "\v"):  # strip whitespaces
         text = text.replace(s, '')
@@ -206,12 +212,26 @@ def stanford_ner_wrapper(text, port, use_pp=False, host='localhost'):
             counter_ners += 1
     ner["ners"] = ners
 
-    # Apply probablepeople
+    # Apply probablepeople / (parse and tag)
     if use_pp:
         pp = []
         for item in ners:
             if "per" in item["tag"].lower():
-                result = probablepeople.tag(item["string"])
+                result = {}
+                try:
+                    result["parse"] = probablepeople.parse(item["string"])
+                    for key, value in probablepeople.tag(item["string"])[0].iteritems():
+                        if "tag" not in result:
+                            result["tag"] = {}
+                        if key not in result["tag"]:
+                            result["tag"][key] = value
+                        else:
+                            result["tag"][key] += " " + value
+                except:
+                    if "error" not in result:
+                        result["error"] = 0
+                    else:
+                        result["error"] += 1
                 pp.append(result)
         ner["pp"] = pp
     return ner

@@ -52,14 +52,13 @@ class Language:
 
     Using ``lang_lib.Language``
     ---------------------------
-    >>> lang = Language(("Willem Jan Faber just invoked lang_lib.Language, while wishing he was in West Virginia."))
+    >>> lang = Language(("Willem-Jan Faber just invoked lang_lib.Language, while wishing he was in West Virginia."))
     Using detected language 'en' to parse input text.
     >>> lang.parse()
     >>> from pprint import pprint; pprint(lang.result)
     {'lang': u'en',
      'sentences': {0: {'count': 0,
-                       'pos': [{'string': u'Willem', 'tag': u'NNP'},
-                               {'string': u'Jan', 'tag': u'NNP'},
+                       'pos': [{'string': u'Willem-Jan', 'tag': u'NNP'},
                                {'string': u'Faber', 'tag': u'NNP'},
                                {'string': u'just', 'tag': u'RB'},
                                {'string': u'invoked', 'tag': u'VBN'},
@@ -74,15 +73,20 @@ class Language:
                                {'string': u'Virginia', 'tag': u'NNP'},
                                {'string': u'.', 'tag': u'.'}],
                        'sentiment': (0.0, 0.0),
-                       'stanford': {'ners': [{'string': 'Willem Jan Faber',
+                       'stanford': {'ners': [{'string': 'Willem-Jan Faber',
                                               'tag': 'person'},
                                              {'string': 'West Virginia',
                                               'tag': 'location'}],
-                                    'raw_ners': [{'string': 'Willem Jan Faber',
+                                    'pp': [{'parse': [('Willem-Jan',
+                                                       'GivenName'),
+                                                      ('Faber', 'Surname')],
+                                            'tag': {'GivenName': 'Willem-Jan',
+                                                    'Surname': 'Faber'}}],
+                                    'raw_ners': [{'string': 'Willem-Jan Faber',
                                                   'tag': 'person'},
                                                  {'string': 'West Virginia',
                                                   'tag': 'location'}],
-                                    'raw_response': u'<PERSON>Willem Jan Faber</PERSON> just invoked lang_lib.Language, while wishing he was in <LOCATION>West Virginia</LOCATION>.'},
+                                    'raw_response': u'<PERSON>Willem-Jan Faber</PERSON> just invoked lang_lib.Language, while wishing he was in <LOCATION>West Virginia</LOCATION>.'},
                        'stats': {'ascii_lowercase': 71,
                                  'count': 87,
                                  'digits': 0,
@@ -90,11 +94,12 @@ class Language:
                                  'printable': 87,
                                  'unprintable': 0,
                                  'uppercase': 6},
-                       'string': u'Willem Jan Faber just invoked lang_lib.Language, while wishing he was in West Virginia.'}},
+                       'string': u'Willem-Jan Faber just invoked lang_lib.Language, while wishing he was in West Virginia.'}},
      'stats': {'avg_length': 87, 'max': 87, 'min': 87},
-     'text': 'Willem Jan Faber just invoked lang_lib.Language, while wishing he was in West Virginia.'}
+     'text': 'Willem-Jan Faber just invoked lang_lib.Language, while wishing he was in West Virginia.'}
 
     URL + Project / Function within Narralyzer:
+    -------------------------------------------
 
     http://stanfordnlp.github.io/CoreNLP/
     Stanford CoreNLP / Find named entities.
@@ -120,7 +125,7 @@ class Language:
     sentences = {}
     stanford_port = 9990
 
-    use_threads = True
+    use_threads = False
     nr_of_threads = 10
 
     use_stats = True
@@ -272,7 +277,10 @@ class Language:
 
         if self.sentiment_avail:
             result["sentiment"] = self._pattern_sentiment(sentence)
-        result["stanford"] = stanford_ner_wrapper(sentence, self.stanford_port)
+
+        result["stanford"] = stanford_ner_wrapper(sentence,
+                                                  port=self.stanford_port,
+                                                  use_pp=True)
 
         pos = []
         for word, pos_tag in self._pattern_tag(sentence):
@@ -388,6 +396,14 @@ def _test_NL():
                                               'tag': 'loc'},
                                              {'string': 'Isabella',
                                               'tag': 'per'}],
+                                    'pp': [{'parse': [('Christophorus',
+                                                       'CorporationName'),
+                                                      ('Columbus',
+                                                       'CorporationName')],
+                                            'tag': {'CorporationName': 'Christophorus Columbus'}},
+                                           {'parse': [('Isabella',
+                                                       'GivenName')],
+                                            'tag': {'GivenName': 'Isabella'}}],
                                     'raw_ners': [{'string': 'Christophorus',
                                                   'tag': 'b-per'},
                                                  {'string': 'Columbus',
@@ -428,6 +444,12 @@ def _test_NL():
                                              {'string': 'Tunis', 'tag': 'loc'},
                                              {'string': 'Isabella',
                                               'tag': 'per'}],
+                                    'pp': [{'parse': [('Columbus',
+                                                       'GivenName')],
+                                            'tag': {'GivenName': 'Columbus'}},
+                                           {'parse': [('Isabella',
+                                                       'GivenName')],
+                                            'tag': {'GivenName': 'Isabella'}}],
                                     'raw_ners': [{'string': 'Columbus',
                                                   'tag': 'b-per'},
                                                  {'string': 'Tunis',

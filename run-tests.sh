@@ -14,6 +14,12 @@ function inform_user() {
     echo "$timestamp: Narralyzer start_stanford.sh $msg"
 }
 
+function run_test() {
+    fname="$1"
+    inform_user "Running doctests for: $fname"
+    python2.7 "$fname" test || exit -1
+}
+
 
 (
 inform_user "Starting Stanford."
@@ -22,9 +28,7 @@ inform_user "Starting Stanford."
 inform_user "Crawling into virtualenv."
 . env/bin/activate
 
-inform_user "Running doctests for: ./narralyzer/lang_lib.py"
-python2.7 ./narralyzer/lang_lib.py test || exit -1
-
-inform_user "Running doctests for: ./narralyzer/stanford_ner_wrapper.py"
-python2.7 ./narralyzer/stanford_ner_wrapper.py test || exit -1
+run_test "./narralyzer/stanford_ner_wrapper.py"
+run_test "./narralyzer/lang_lib.py"
+run_test "./narralyzer/utils.py"
 ) || exit -1
