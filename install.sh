@@ -90,7 +90,7 @@ is_virtualenv_avail() {
         inform_user "Virtualenv is not available, helas. sudo-apt-get install virtualenv?"
         exit -1
     fi
-    inform_userinform_user "Virtualenv is available."
+    inform_user "Virtualenv is available."
 }
 
 # Now move to install dir for installation of core and models.
