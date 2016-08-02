@@ -30,7 +30,7 @@ TEST_DATA = os.path.join(current_path, 'test_data')
 OUTPUT = os.path.join(current_path, 'out')
 
 
-def load_test_book(fname, force=True, return_json=False, verbose=True):
+def load_test_book(fname, force=False, return_json=False, verbose=True):
     '''
         >>> book = load_test_book('dutch_book_gbid_20060.txt', verbose=False)
         >>> from pprint import pprint
@@ -38,7 +38,7 @@ def load_test_book(fname, force=True, return_json=False, verbose=True):
         {'avg_length': 97, 'max': 827, 'min': 1}
     '''
     fname = os.path.basename(fname)
-    ofname = os.path.join(OUTPUT, fname.replace('.txt', 'pickle.gz'))
+    ofname = os.path.join(OUTPUT, fname.replace('.txt', '.pickle.gz'))
     fname = os.path.join(TEST_DATA, fname)
 
     if not os.path.isfile(ofname) and not force:
