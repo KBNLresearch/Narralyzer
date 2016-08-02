@@ -24,10 +24,10 @@ from lang_lib import Language
 current_path = os.path.realpath(__file__.replace(os.path.basename(os.path.realpath(__file__)), os.sep))
 
 # Path to test data
-TEST_DATA = current_path + '../test_data/'
+TEST_DATA = os.path.join(current_path, '..', 'test_data')
 
 # Path to put output files (parsed / zipped books)
-OUTPUT = current_path + '../out/'
+OUTPUT = os.path.join(current_path, '..', 'out')
 
 
 def load_test_book(fname, force=True, return_json=False, verbose=True):
@@ -85,4 +85,4 @@ if __name__ == "__main__":
 
     from pprint import pprint
     book = load_test_book('dutch_book_gbid_20060.txt')
-    pprint(book.get('stats'))
+    pprint(book)
