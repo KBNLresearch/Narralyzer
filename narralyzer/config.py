@@ -14,7 +14,6 @@ import sys
 reload(sys)
 sys.setdefaultencoding('utf-8')
 
-from sys import argv, exit
 from os import path, environ, getenv
 from ConfigParser import ConfigParser
 
@@ -26,7 +25,12 @@ except:
 class Config():
     """
     Configuration file dict.
+
+    >>> config = Config()
+    >>> config.get('supported_languages')
+    'DE EN NL SP'
     """
+
     config = {
         'config_file': 'conf/config.ini',
         'models': {},
@@ -47,7 +51,7 @@ class Config():
 
         if not path.isfile(config_file):
             print("Could not open config file: {0}".format(path.abspath(config_file)))
-            exit(-1)
+            sys.exit(-1)
 
         self.config['config_file'] = config_file
         config = ConfigParser()
@@ -65,27 +69,33 @@ class Config():
                 stanford_ner_path = config.get(section, 'stanford_ner_path')
 
         for language in self.config.get('models'):
-            self.config["supported_languages"].append(language)
+            if not language in self.config["supported_languages"]:
+                self.config["supported_languages"].append(language)
 
     def get(self, variable):
         result = self.config.get(variable, None)
         if isinstance(result, list):
-            return " ".join(result).upper()
+            return " ".join(sorted(result)).upper()
         return result
 
     def __repr__(self):
-        result = "Using config file:\n\t{0}\nAvailable config parameters:\n\t{1}\n\t{2}".format(
-                self.config.get('config_file'),
-                "supported_languages",
-                "root"
+        current_config = "root: {0}\n" \
+                         "\tsupported_languages: {1}\n" \
+                         "\tconfig_file: {2}\n".format(
+                                 self.config.get('root'),
+                                 self.get('supported_languages'),
+                                 self.config.get('config_file'))
+        result = "Available config parameters:\n\t{0}\n\t{1}\n\nCurrent config:\n\t{2}".format(
+                "- supported_languages",
+                "- root",
+                current_config.strip()
                 )
         return result
 
 if __name__ == "__main__":
     config = Config()
-
-    if len(argv) > 1:
-        result = config.get(argv[1])
+    if len(sys.argv) >= 2 and not "test" in " ".join(sys.argv):
+        result = config.get(sys.argv[1])
         if result is None:
             msg = "Config key {0} unknown."
             logger(msg)
@@ -93,4 +103,8 @@ if __name__ == "__main__":
         else:
             print(result)
     else:
-        print(config)
+        if len(sys.argv) >= 2 and "test" in " ".join(sys.argv):
+            import doctest
+            doctest.testmod(verbose=True)
+        else:
+           print(config)

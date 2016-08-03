@@ -25,6 +25,16 @@ from segtok.segmenter import split_multi
 from stanford_ner_wrapper import stanford_ner_wrapper
 from threading import Thread
 
+try:
+    from narralyzer import config
+except:
+    import config
+
+try:
+    from narralyzer import utils
+except:
+    import utils
+
 # TODO Move this to a seperate config module.
 STANFORD_NER_SERVERS = {"de": 9990,
                         "en": 9991,
@@ -131,6 +141,7 @@ class Language:
     use_stats = True
 
     sentiment_avail = True
+    config = config.Config()
 
     def __init__(self, text=False, lang=False, use_langdetect=True):
         if not text:
@@ -161,7 +172,7 @@ class Language:
             msg = "Skipping language detection, user specified %s as language" % lang
             print(msg)
 
-        if not lang or lang not in STANFORD_NER_SERVERS:
+        if not lang or lang not in self.config.get('supported_languages').lower():
             msg = "Did not find suitable language to parse text in."
             print(msg, lang)
             sys.exit(-1)
