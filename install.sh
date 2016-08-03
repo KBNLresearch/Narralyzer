@@ -1,4 +1,4 @@
-#!/bin/bin/env bash
+#!/usr/bin/env bash
 
 #
 # File: install.sh
@@ -22,7 +22,6 @@ STANFORD_CORE="http://nlp.stanford.edu/software/stanford-corenlp-full-2015-12-09
 # Where the language models live.
 STANFORD_DE="http://nlp.stanford.edu/software/stanford-german-2016-01-19-models.jar"
 STANFORD_EN="http://nlp.stanford.edu/software/stanford-english-corenlp-2016-01-10-models.jar"
-STANFORD_FR="http://nlp.stanford.edu/software/stanford-french-corenlp-2016-01-14-models.jar"
 STANFORD_NL="https://raw.githubusercontent.com/WillemJan/Narralyzer_Dutch_languagemodel/master/dutch.crf.gz"
 STANFORD_SP="http://nlp.stanford.edu/software/stanford-spanish-corenlp-2015-10-14-models.jar"
 
@@ -100,30 +99,26 @@ else
     cd stanford
 fi
 
-# If stanford-corenlp-full*.zip is allready there, do nothing.
-full=$(find -name \*full\* | wc -l)
-if [ "$full" = "0" ];then
-    # Fetch stanford-core from their site,
-    # and install it.
-    fetch_stanford_core
-else
-    inform_user "Not fetching stanford-core, allready there."
-fi
+    # If stanford-corenlp-full*.zip is allready there, do nothing.
+    full=$(find -name \*full\* | wc -l)
+    if [ "$full" = "0" ];then
+        # Fetch stanford-core from their site,
+        # and install it.
+        fetch_stanford_core
+    else
+        inform_user "Not fetching stanford-core, allready there."
+    fi
 
-# If the models are allready there, do nothing.
-if [ ! -d 'models' ]; then
-    # Else fetch and unpack models.
-    mkdir models && cd models
-    fetch_stanford_lang_models
-    cd ..
-fi
+    # If the models are allready there, do nothing.
+    if [ ! -d 'models' ]; then
+        # Else fetch and unpack models.
+        mkdir models && cd models
+        fetch_stanford_lang_models
+        cd ..
+    fi
 
 # Now leave the install dir.
 cd ..
-
-#pip install --user -U pip setuptools
-#pip install --user --upgrade pip
-
 
 # Check if the virtual env exists, if not, create one and within
 # the virtual env install the required packages.

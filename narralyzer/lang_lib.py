@@ -489,11 +489,6 @@ if __name__ == '__main__':
         from pycallgraph import PyCallGraph
         from pycallgraph.output import GraphvizOutput
 
-        gutenberg_test_id = 17685
-        # Fetch a test book from gutenberg.
-        # http://www.gutenberg.org/ebooks/
-        text = smart_text(strip_headers(load_etext(gutenberg_test_id)).strip()).replace('\n', ' ')
-
         if "time" in " ".join(sys.argv):
             print("Timing non-threaded lang_lib")
             s = time.time()

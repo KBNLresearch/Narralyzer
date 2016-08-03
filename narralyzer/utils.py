@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
     narralyzer.utils
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    ~~~~~~~~~~~~~~~~
     Misc utilities to support Narralyzer.
 
     :copyright: (c) 2016 Koninklijke Bibliotheek, by Willem-Jan Faber.
@@ -17,31 +17,57 @@ import codecs
 import cPickle
 import gzip
 import json
+import logging
 import os
 import time
 
-from lang_lib import Language
-current_path = os.path.realpath(__file__.replace(os.path.basename(os.path.realpath(__file__)), os.sep))
+
+# Define how often you want to see messages
+DEFAULT_LOGLEVEL = logging.DEBUG
+
+# Define how pretty the logs look
+LOG_FORMAT = '%(asctime)s %(name)-12s %(levelname)-8s %(message)s'
+
+# Get the package-base-path
+BASE_PATH = ''
 
 # Path to test data
-TEST_DATA = os.path.join(current_path, 'test_data')
+TESTDATA_PATH = os.sep +'test_data' + os.sep
 
-# Path to put output files (parsed / zipped books)
-OUTPUT = os.path.join(current_path, 'out')
+# Path to output files
+OUTPUT_PATH = os.sep + 'out' + os.sep
 
+def logger(name, loglevel='warning'):
+    try:
+        loglevel = getattr(logging,
+                           [l for l in dir(logging) if (
+                               l.isupper() and l.lower()) == loglevel].pop())
+    except:
+        loglevel = DEFAULT_LOGLEVEL
 
-def load_test_book(fname, force=False, return_json=False, verbose=True):
+    logger = logging.getLogger(name)
+    handler = logging.StreamHandler()
+    formatter = logging.Formatter(LOG_FORMAT)
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+    logger.setLevel(loglevel)
+    return logger
+
+def narralyze(input_text, output_name=False, return_json=True, verbose=True):
+    from lang_lib import Language
+
+    if not input_text:
+        msg = "Did not recieve any text to work with"
+        return
+
+    output_name = os.path.join(
+            BASE_PATH,
+            OUTPUT_PATH,
+            output_name)
+
     '''
-        >>> book = load_test_book('dutch_book_gbid_20060.txt', verbose=False)
-        >>> from pprint import pprint
-        >>> pprint(book.get('stats'))
-        {'avg_length': 97, 'max': 827, 'min': 1}
-    '''
-    fname = os.path.basename(fname)
-    ofname = os.path.join(OUTPUT, fname.replace('.txt', '.pickle.gz'))
-    fname_txt = os.path.join('..', TEST_DATA, fname)
 
-    if not os.path.isfile(ofname) and not force:
+    if not os.path.isfile(output_name):
         # Open and read the test-book.
         fh = codecs.open(fname_txt, 'r', encoding='utf-8')
         book = fh.read().replace('\n', ' ')
@@ -79,6 +105,7 @@ def load_test_book(fname, force=False, return_json=False, verbose=True):
     if return_json:
         return json.dumps(result)
     return result
+    '''
 
 if __name__ == "__main__":
     print("Relativity theory")
