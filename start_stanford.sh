@@ -37,7 +37,7 @@ NL_PORT=9993
 SP_CLASSIFIER="../models//edu/stanford/nlp/models/ner/spanish.ancora.distsim.s512.crf.ser.gz"
 SP_PORT=9994
 
-SUPPORTED_LANG="DE EN NL SP"
+SUPPORTED_LANG=$(narralyzer/config.py supported_languages)
 
 # Little wrapper to datestamp outgoing messages.
 function inform_user() {

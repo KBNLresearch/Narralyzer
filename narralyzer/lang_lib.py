@@ -25,6 +25,16 @@ from segtok.segmenter import split_multi
 from stanford_ner_wrapper import stanford_ner_wrapper
 from threading import Thread
 
+try:
+    from narralyzer import config
+except:
+    import config
+
+try:
+    from narralyzer import utils
+except:
+    import utils
+
 # TODO Move this to a seperate config module.
 STANFORD_NER_SERVERS = {"de": 9990,
                         "en": 9991,
@@ -131,6 +141,7 @@ class Language:
     use_stats = True
 
     sentiment_avail = True
+    config = config.Config()
 
     def __init__(self, text=False, lang=False, use_langdetect=True):
         if not text:
@@ -161,7 +172,7 @@ class Language:
             msg = "Skipping language detection, user specified %s as language" % lang
             print(msg)
 
-        if not lang or lang not in STANFORD_NER_SERVERS:
+        if not lang or lang not in self.config.get('supported_languages').lower():
             msg = "Did not find suitable language to parse text in."
             print(msg, lang)
             sys.exit(-1)
@@ -488,11 +499,6 @@ if __name__ == '__main__':
         from gutenberg.cleanup import strip_headers
         from pycallgraph import PyCallGraph
         from pycallgraph.output import GraphvizOutput
-
-        gutenberg_test_id = 17685
-        # Fetch a test book from gutenberg.
-        # http://www.gutenberg.org/ebooks/
-        text = smart_text(strip_headers(load_etext(gutenberg_test_id)).strip()).replace('\n', ' ')
 
         if "time" in " ".join(sys.argv):
             print("Timing non-threaded lang_lib")
