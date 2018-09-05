@@ -11,11 +11,9 @@ Narralyzer will help you quickly analyze the occurrence of and relations between
 The backend library also does POS tagging and sentiment analysis, however this is not exposed in the frontend.
 
 
-See https://github.com/KBNLresearch/Narralyzer for source code, demo available here: https://kbresearch.nl/narralyzer/
-More info: http://lab.kb.nl/tool/narralyzer
-
-
-Language models here:
-
-- https://github.com/WillemJan/Narralyzer_languagemodel
-- https://github.com/WillemJan/Narralyzer_Dutch_languagemodel
+ee https://github.com/KBNLresearch/Narralyzer for source code, demo available here: https://kbresearch.nl/narralyzer/
+- Info: http://lab.kb.nl/tool/narralyzer
+- Demo: https://kbresearch.nl/narralyzer/
+- Language models:
+  - https://github.com/WillemJan/Narralyzer_languagemodel
+  - https://github.com/WillemJan/Narralyzer_Dutch_languagemodel
