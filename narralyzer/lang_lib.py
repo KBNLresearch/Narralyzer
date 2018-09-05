@@ -3,13 +3,7 @@
 """
     narralyzer.lang_lib
     ~~~~~~~~~~~~~~~~~~~
-    Implements sentence level analyzer for natural language.
-
-    Method: Building on the shoulders of giants :)
-    
-    
-    Since you are looking directly at dev code, know this: we are looking for a researcher in recidence:
-    http://blog.kbresearch.nl/2016/06/08/call-for-proposals-kb-researcher-in-residence-2017/
+    Implements sentence level analyzer for natural language
 
     :copyright: (c) 2016 Koninklijke Bibliotheek, by Willem Jan Faber.
     :license: GPLv3, see licence.txt for more details.
