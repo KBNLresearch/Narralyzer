@@ -6,15 +6,6 @@ sys.path.append(os.path.dirname(__file__))
 VIRT_ENV = "env/bin/activate_this.py"
 execfile(VIRT_ENV, dict(__file__=VIRT_ENV))
 
-#from pprint import pprint
-#import tika
-#from tika import parser
-#parsed = parser.from_file('/data/zevv/shared_stuff/books/0131774298/Expert_C_Programming_-_Deep_C_Secrets.pdf',  'http://localhost:9091/tika')
-#nl=NL()
-#nl.text=parsed["content"]
-#nl.parse()
-#pprint(nl.result)
-
 import codecs
 import datetime
 import magic
@@ -220,4 +211,4 @@ def index():
     return render_template('index.html')
 
 if __name__ == "__main__":
-    application.run(threaded=True, port=60606, host="fe2")
+    application.run(threaded=True, port=60606, host="localhost")
