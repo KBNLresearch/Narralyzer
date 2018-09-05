@@ -4,8 +4,7 @@
 # File: run-tests.sh
 #
 # This file is part of the Narralyzer package.
-# see: http://github.com/WillemJan/Narralyzer
-#
+# see: http://lab.kb.nl/tool/narralyzer
 
 # Little wrapper to datestamp outgoing messages.
 function inform_user() {
