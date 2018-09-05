@@ -4,14 +4,12 @@
 # File: install.sh
 #
 # This file is part of the Narralyzer package.
-# see: http://github.com/WillemJan/Narralyzer
+# see: http://lab.kb.nl/tool/narralyzer
 
 # If you run into troubles try this: 
 # 
 # sudo apt-get install -y build-essesntials libdb-dev virtualenv python2.7 libxml2-dev libxslt1-dev
-#
-# Or leave a ping here: https://www.github.com/WillemJan/Narralyzer
-#
+
 
 # Tika will take care of most input document conversion.
 TIKA="http://apache.cs.uu.nl/tika/tika-app-1.13.jar"
